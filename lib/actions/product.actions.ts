@@ -36,14 +36,14 @@ export type ProductFormState = {
 async function getSession() {
   const session = await auth();
   if (!session?.user?.id) throw new Error("Unauthorized");
-  return session;
+  return { userId: session.user.id as string };
 }
 
 export async function createProduct(
   _prevState: ProductFormState,
   formData: FormData,
 ): Promise<ProductFormState> {
-  const session = await getSession();
+  const { userId } = await getSession();
 
   const parsed = ProductSchema.safeParse({
     name: formData.get("name"),
@@ -60,7 +60,7 @@ export async function createProduct(
   await db.product.create({
     data: {
       ...parsed.data,
-      userId: session.user.id,
+      userId,
     },
   });
 
@@ -73,7 +73,7 @@ export async function updateProduct(
   _prevState: ProductFormState,
   formData: FormData,
 ): Promise<ProductFormState> {
-  const session = await getSession();
+  const { userId } = await getSession();
 
   const parsed = ProductSchema.safeParse({
     name: formData.get("name"),
@@ -88,7 +88,7 @@ export async function updateProduct(
   }
 
   const product = await db.product.findFirst({
-    where: { id, userId: session.user.id },
+    where: { id, userId },
   });
 
   if (!product) return { message: "Product not found." };
@@ -103,10 +103,10 @@ export async function updateProduct(
 }
 
 export async function deleteProduct(id: string) {
-  const session = await getSession();
+  const { userId } = await getSession();
 
   const product = await db.product.findFirst({
-    where: { id, userId: session.user.id },
+    where: { id, userId },
   });
 
   if (!product) return { error: "Product not found." };
@@ -116,11 +116,11 @@ export async function deleteProduct(id: string) {
 }
 
 export async function getProducts(search?: string, status?: string) {
-  const session = await getSession();
+  const { userId } = await getSession();
 
   const products = await db.product.findMany({
     where: {
-      userId: session.user.id,
+      userId,
       ...(search && {
         name: {
           contains: search,
@@ -143,19 +143,19 @@ export async function getProducts(search?: string, status?: string) {
 }
 
 export async function getProductById(id: string) {
-  const session = await getSession();
+  const { userId } = await getSession();
 
   return db.product.findFirst({
-    where: { id, userId: session.user.id },
+    where: { id, userId },
   });
 }
 
 export async function getProductsForSale() {
-  const session = await getSession();
+  const { userId } = await getSession();
 
   return db.product.findMany({
     where: {
-      userId: session.user.id,
+      userId,
       stock: { gt: 0 },
     },
     orderBy: { name: "asc" },

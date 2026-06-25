@@ -20,13 +20,13 @@ const CreateSaleSchema = z.object({
 async function getSession() {
   const session = await auth();
   if (!session?.user?.id) throw new Error("Unauthorized");
-  return session;
+  return { userId: session.user.id as string };
 }
 
 export async function createSale(
   items: { productId: string; quantity: number; unitPrice: number }[],
 ) {
-  const session = await getSession();
+  const { userId } = await getSession();
 
   const parsed = CreateSaleSchema.safeParse({ items });
   if (!parsed.success) {
@@ -35,11 +35,9 @@ export async function createSale(
 
   for (const item of parsed.data.items) {
     const product = await db.product.findFirst({
-      where: { id: item.productId, userId: session.user.id },
+      where: { id: item.productId, userId },
     });
-
     if (!product) return { error: "Product not found." };
-
     if (product.stock < item.quantity) {
       return {
         error: `Not enough stock for "${product.name}". Available: ${product.stock}`,
@@ -56,7 +54,7 @@ export async function createSale(
     const sale = await tx.sale.create({
       data: {
         total,
-        userId: session.user.id,
+        userId,
         items: {
           create: parsed.data.items.map((item) => ({
             productId: item.productId,
@@ -84,10 +82,10 @@ export async function createSale(
 }
 
 export async function getSales() {
-  const session = await getSession();
+  const { userId } = await getSession();
 
   return db.sale.findMany({
-    where: { userId: session.user.id },
+    where: { userId },
     include: {
       items: {
         include: { product: true },
@@ -97,16 +95,15 @@ export async function getSales() {
   });
 }
 
-// Paginated version
 export async function getPaginatedSales(
   page: number = 1,
   perPage: number = 10,
 ) {
-  const session = await getSession();
+  const { userId } = await getSession();
 
   const [sales, total] = await Promise.all([
     db.sale.findMany({
-      where: { userId: session.user.id },
+      where: { userId },
       include: {
         items: {
           include: { product: true },
@@ -117,7 +114,7 @@ export async function getPaginatedSales(
       take: perPage,
     }),
     db.sale.count({
-      where: { userId: session.user.id },
+      where: { userId },
     }),
   ]);
 
@@ -129,18 +126,17 @@ export async function getPaginatedSales(
   };
 }
 
-// Totals for summary bar (all time, not paginated)
 export async function getSalesTotals() {
-  const session = await getSession();
+  const { userId } = await getSession();
 
   const [totalRevenue, totalUnits] = await Promise.all([
     db.sale.aggregate({
-      where: { userId: session.user.id },
+      where: { userId },
       _sum: { total: true },
     }),
     db.saleItem.aggregate({
       where: {
-        sale: { userId: session.user.id },
+        sale: { userId },
       },
       _sum: { quantity: true },
     }),
@@ -152,12 +148,11 @@ export async function getSalesTotals() {
   };
 }
 
-// Add to bottom of src/lib/actions/sale.actions.ts
 export async function getAllSalesForExport() {
-  const session = await getSession();
+  const { userId } = await getSession();
 
   return db.sale.findMany({
-    where: { userId: session.user.id },
+    where: { userId },
     include: {
       items: {
         include: { product: true },
