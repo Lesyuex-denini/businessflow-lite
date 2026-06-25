@@ -6,7 +6,6 @@ import { redirect } from "next/navigation";
 import { z } from "zod";
 import { auth } from "@/auth";
 import { db } from "@/lib/db";
-import { Prisma } from "@prisma/client";
 
 const SaleItemSchema = z.object({
   productId: z.string().min(1, "Product is required"),
@@ -51,30 +50,32 @@ export async function createSale(
     0,
   );
 
-  await db.$transaction(async (tx: Prisma.TransactionClient) => {
-    const sale = await tx.sale.create({
-      data: {
-        total,
-        userId,
-        items: {
-          create: parsed.data.items.map((item) => ({
-            productId: item.productId,
-            quantity: item.quantity,
-            unitPrice: item.unitPrice,
-          })),
+  await db.$transaction(
+    async (tx: Parameters<Parameters<typeof db.$transaction>[0]>[0]) => {
+      const sale = await tx.sale.create({
+        data: {
+          total,
+          userId,
+          items: {
+            create: parsed.data.items.map((item) => ({
+              productId: item.productId,
+              quantity: item.quantity,
+              unitPrice: item.unitPrice,
+            })),
+          },
         },
-      },
-    });
-
-    for (const item of parsed.data.items) {
-      await tx.product.update({
-        where: { id: item.productId },
-        data: { stock: { decrement: item.quantity } },
       });
-    }
 
-    return sale;
-  });
+      for (const item of parsed.data.items) {
+        await tx.product.update({
+          where: { id: item.productId },
+          data: { stock: { decrement: item.quantity } },
+        });
+      }
+
+      return sale;
+    },
+  );
 
   revalidatePath("/dashboard/sales");
   revalidatePath("/dashboard/products");
