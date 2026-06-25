@@ -86,7 +86,7 @@ export function AuthLayout({ children }: { children: React.ReactNode }) {
         {/* Bottom: Tagline */}
         <div className="relative z-10">
           <p className="text-blue-400 text-xs">
-            © 2025 BusinessFlow Lite — Built for small business owners
+            © 2026 BusinessFlow Lite — Built for small business owners
           </p>
         </div>
       </div>

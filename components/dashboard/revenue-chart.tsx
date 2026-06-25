@@ -90,12 +90,17 @@ export function RevenueChart({ data }: RevenueChartProps) {
         <defs>
           <linearGradient id="revenueGradient" x1="0" y1="0" x2="0" y2="1">
             <stop
-              offset="5%"
+              offset="0%"
               stopColor="hsl(var(--primary))"
-              stopOpacity={0.25}
+              stopOpacity={0.6}
             />
             <stop
-              offset="95%"
+              offset="60%"
+              stopColor="hsl(var(--primary))"
+              stopOpacity={0.2}
+            />
+            <stop
+              offset="100%"
               stopColor="hsl(var(--primary))"
               stopOpacity={0}
             />
@@ -126,10 +131,15 @@ export function RevenueChart({ data }: RevenueChartProps) {
           type="monotone"
           dataKey="revenue"
           stroke="hsl(var(--primary))"
-          strokeWidth={2}
+          strokeWidth={3}
           fill="url(#revenueGradient)"
           dot={false}
-          activeDot={{ r: 5, strokeWidth: 0, fill: "hsl(var(--primary))" }}
+          activeDot={{
+            r: 6,
+            strokeWidth: 2,
+            stroke: "#fff",
+            fill: "hsl(var(--primary))",
+          }}
         />
       </AreaChart>
     </ResponsiveContainer>
