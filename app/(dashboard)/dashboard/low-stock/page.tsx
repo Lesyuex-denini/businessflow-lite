@@ -3,7 +3,6 @@ import Link from "next/link";
 import { AlertTriangle, Package } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Product } from "@prisma/client";
 
 import {
   Table,
@@ -74,7 +73,19 @@ export default async function LowStockPage() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {products.map((product: Product) => (
+                {(
+                  products as Array<{
+                    id: string;
+                    name: string;
+                    stock: number;
+                    lowStockThreshold: number;
+                    price: number;
+                    description: string | null;
+                    createdAt: Date;
+                    updatedAt: Date;
+                    userId: string;
+                  }>
+                ).map((product) => (
                   <TableRow key={product.id}>
                     <TableCell className="font-medium dark:text-white">
                       {product.name}
