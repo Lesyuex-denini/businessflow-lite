@@ -70,34 +70,50 @@ export async function DashboardContent() {
             </Button>
           </div>
           <div className="divide-y divide-gray-100">
-            {metrics.lowStockProducts.slice(0, 5).map((product) => (
-              <div
-                key={product.id}
-                className="flex items-center justify-between px-6 py-3"
-              >
-                <div>
-                  <p className="text-sm font-medium text-gray-900 dark:text-white">
-                    {product.name}
-                  </p>
-                  <p className="text-xs text-gray-400">
-                    Threshold: {product.lowStockThreshold} units
-                  </p>
-                </div>
-                <Badge
-                  variant={product.stock === 0 ? "destructive" : "secondary"}
-                  className={
-                    product.stock > 0 &&
-                    product.stock <= product.lowStockThreshold
-                      ? "bg-yellow-100 text-yellow-800 hover:bg-yellow-100"
-                      : ""
-                  }
-                >
-                  {product.stock === 0
-                    ? "Out of stock"
-                    : `${product.stock} left`}
-                </Badge>
-              </div>
-            ))}
+            {metrics.lowStockProducts
+              .slice(0, 5)
+              .map(
+                (product: {
+                  id: string;
+                  name: string;
+                  stock: number;
+                  lowStockThreshold: number;
+                  price: number;
+                  description: string | null;
+                  createdAt: Date;
+                  updatedAt: Date;
+                  userId: string;
+                }) => (
+                  <div
+                    key={product.id}
+                    className="flex items-center justify-between px-6 py-3"
+                  >
+                    <div>
+                      <p className="text-sm font-medium text-gray-900 dark:text-white">
+                        {product.name}
+                      </p>
+                      <p className="text-xs text-gray-400">
+                        Threshold: {product.lowStockThreshold} units
+                      </p>
+                    </div>
+                    <Badge
+                      variant={
+                        product.stock === 0 ? "destructive" : "secondary"
+                      }
+                      className={
+                        product.stock > 0 &&
+                        product.stock <= product.lowStockThreshold
+                          ? "bg-yellow-100 text-yellow-800 hover:bg-yellow-100"
+                          : ""
+                      }
+                    >
+                      {product.stock === 0
+                        ? "Out of stock"
+                        : `${product.stock} left`}
+                    </Badge>
+                  </div>
+                ),
+              )}
           </div>
         </div>
       )}
