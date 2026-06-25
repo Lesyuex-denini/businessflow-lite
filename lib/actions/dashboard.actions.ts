@@ -46,11 +46,15 @@ export async function getLowStockProducts() {
   const session = await getSession();
 
   const products = await db.product.findMany({
-    where: { userId: session.user.id },
+    where: { userId: session.user!.id as string },
+
     orderBy: { stock: "asc" },
   });
 
-  return products.filter((p) => p.stock <= p.lowStockThreshold);
+  return products.filter(
+    (p: { stock: number; lowStockThreshold: number }) =>
+      p.stock <= p.lowStockThreshold,
+  );
 }
 
 export async function getRevenueChartData() {
