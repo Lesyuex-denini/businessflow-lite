@@ -7,12 +7,11 @@ import { db } from "@/lib/db";
 async function getSession() {
   const session = await auth();
   if (!session?.user?.id) throw new Error("Unauthorized");
-  return session;
+  return { userId: session.user.id as string };
 }
 
 export async function getDashboardMetrics() {
-  const session = await getSession();
-  const userId = session.user!.id as string;
+  const { userId } = await getSession();
 
   const [totalProducts, totalSales, revenueResult, allProducts] =
     await Promise.all([
@@ -43,11 +42,10 @@ export async function getDashboardMetrics() {
 }
 
 export async function getLowStockProducts() {
-  const session = await getSession();
+  const { userId } = await getSession();
 
   const products = await db.product.findMany({
-    where: { userId: session.user!.id as string },
-
+    where: { userId },
     orderBy: { stock: "asc" },
   });
 
@@ -58,15 +56,14 @@ export async function getLowStockProducts() {
 }
 
 export async function getRevenueChartData() {
-  const session = await getSession();
+  const { userId } = await getSession();
 
-  // Get last 30 days of sales
   const thirtyDaysAgo = new Date();
   thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
   const sales = await db.sale.findMany({
     where: {
-      userId: session.user.id,
+      userId,
       createdAt: { gte: thirtyDaysAgo },
     },
     select: {
@@ -76,10 +73,8 @@ export async function getRevenueChartData() {
     orderBy: { createdAt: "asc" },
   });
 
-  // Build a map of date → revenue
   const revenueByDate = new Map<string, number>();
 
-  // Pre-fill all 30 days with 0
   for (let i = 29; i >= 0; i--) {
     const date = new Date();
     date.setDate(date.getDate() - i);
@@ -90,7 +85,6 @@ export async function getRevenueChartData() {
     revenueByDate.set(key, 0);
   }
 
-  // Add actual sales
   for (const sale of sales) {
     const key = new Date(sale.createdAt).toLocaleDateString("en-PH", {
       month: "short",
