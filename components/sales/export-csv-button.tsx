@@ -5,6 +5,7 @@ import { useState } from "react";
 import { Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
+import { SaleType } from "@/lib/types";
 
 interface SaleItem {
   product: { name: string };
@@ -20,7 +21,7 @@ interface Sale {
 }
 
 interface ExportCSVButtonProps {
-  sales: Sale[];
+  sales: SaleType[];
 }
 
 export function ExportCSVButton({ sales }: ExportCSVButtonProps) {

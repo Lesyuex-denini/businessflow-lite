@@ -1,5 +1,7 @@
 // src/components/sales/history-table.tsx
 import Link from "next/link";
+import { SaleType } from "@/lib/types";
+
 import { ShoppingCart } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -78,7 +80,7 @@ export async function HistoryTable({ page = 1 }: HistoryTableProps) {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {sales.map((sale) => (
+            {sales.map((sale: SaleType) => (
               <TableRow key={sale.id}>
                 <TableCell className="text-sm text-gray-600 dark:text-gray-400 whitespace-nowrap">
                   {new Date(sale.createdAt).toLocaleDateString("en-PH", {

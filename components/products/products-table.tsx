@@ -1,5 +1,6 @@
 // src/components/products/products-table.tsx
 import Link from "next/link";
+import { ProductType } from "@/lib/types";
 import { Plus, Pencil } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -56,7 +57,7 @@ export async function ProductsTable({ search, status }: ProductsTableProps) {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {products.map((product) => {
+          {products.map((product: ProductType) => {
             const isLowStock = product.stock <= product.lowStockThreshold;
             return (
               <TableRow key={product.id}>
