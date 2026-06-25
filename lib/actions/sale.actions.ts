@@ -30,7 +30,7 @@ export async function createSale(
 
   const parsed = CreateSaleSchema.safeParse({ items });
   if (!parsed.success) {
-    return { error: parsed.error.errors[0].message };
+    return { error: parsed.error.issues[0].message };
   }
 
   for (const item of parsed.data.items) {
