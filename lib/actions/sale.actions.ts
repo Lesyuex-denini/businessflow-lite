@@ -50,32 +50,31 @@ export async function createSale(
     0,
   );
 
-  await db.$transaction(
-    async (tx: Parameters<Parameters<typeof db.$transaction>[0]>[0]) => {
-      const sale = await tx.sale.create({
-        data: {
-          total,
-          userId,
-          items: {
-            create: parsed.data.items.map((item) => ({
-              productId: item.productId,
-              quantity: item.quantity,
-              unitPrice: item.unitPrice,
-            })),
-          },
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  await db.$transaction(async (tx: any) => {
+    const sale = await tx.sale.create({
+      data: {
+        total,
+        userId,
+        items: {
+          create: parsed.data.items.map((item) => ({
+            productId: item.productId,
+            quantity: item.quantity,
+            unitPrice: item.unitPrice,
+          })),
         },
+      },
+    });
+
+    for (const item of parsed.data.items) {
+      await tx.product.update({
+        where: { id: item.productId },
+        data: { stock: { decrement: item.quantity } },
       });
+    }
 
-      for (const item of parsed.data.items) {
-        await tx.product.update({
-          where: { id: item.productId },
-          data: { stock: { decrement: item.quantity } },
-        });
-      }
-
-      return sale;
-    },
-  );
+    return sale;
+  });
 
   revalidatePath("/dashboard/sales");
   revalidatePath("/dashboard/products");
