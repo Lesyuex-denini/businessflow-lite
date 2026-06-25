@@ -6,6 +6,7 @@ import { redirect } from "next/navigation";
 import { z } from "zod";
 import { auth } from "@/auth";
 import { db } from "@/lib/db";
+import { Prisma } from "@prisma/client";
 
 const SaleItemSchema = z.object({
   productId: z.string().min(1, "Product is required"),
@@ -50,7 +51,7 @@ export async function createSale(
     0,
   );
 
-  await db.$transaction(async (tx) => {
+  await db.$transaction(async (tx: Prisma.TransactionClient) => {
     const sale = await tx.sale.create({
       data: {
         total,
