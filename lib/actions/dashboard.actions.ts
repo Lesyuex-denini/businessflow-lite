@@ -12,7 +12,7 @@ async function getSession() {
 
 export async function getDashboardMetrics() {
   const session = await getSession();
-  const userId = session.user.id;
+  const userId = session.user!.id as string;
 
   const [totalProducts, totalSales, revenueResult, allProducts] =
     await Promise.all([
