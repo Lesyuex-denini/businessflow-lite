@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/card";
 import { FieldError } from "@/components/ui/field-error";
 import Link from "next/link";
-import { Product } from "@prisma/client";
+
 import { ProductFormState } from "@/lib/actions/product.actions";
 
 type ActionFn = (
@@ -23,12 +23,23 @@ type ActionFn = (
   formData: FormData,
 ) => Promise<ProductFormState>;
 
-interface ProductFormProps {
-  action: ActionFn;
-  product?: Product;
-  title: string;
+interface ProductProduct {
+  id: string;
+  name: string;
+  description: string | null;
+  price: number;
+  stock: number;
+  lowStockThreshold: number;
+  createdAt: Date;
+  updatedAt: Date;
+  userId: string;
 }
 
+interface ProductFormProps {
+  action: ActionFn;
+  product?: ProductProduct;
+  title: string;
+}
 export function ProductForm({ action, product, title }: ProductFormProps) {
   const [state, formAction, pending] = useActionState(action, null);
 
