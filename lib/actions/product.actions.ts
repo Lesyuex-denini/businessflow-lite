@@ -10,15 +10,13 @@ import { db } from "@/lib/db";
 const ProductSchema = z.object({
   name: z.string().min(1, "Name is required"),
   description: z.string().optional(),
-  price: z.coerce
-    .number({ invalid_type_error: "Price must be a number" })
-    .positive("Price must be greater than 0"),
+  price: z.coerce.number().positive("Price must be greater than 0"),
   stock: z.coerce
-    .number({ invalid_type_error: "Stock must be a number" })
+    .number()
     .int("Stock must be a whole number")
     .min(0, "Stock cannot be negative"),
   lowStockThreshold: z.coerce
-    .number({ invalid_type_error: "Threshold must be a number" })
+    .number()
     .int("Threshold must be a whole number")
     .min(1, "Threshold must be at least 1")
     .default(10),
