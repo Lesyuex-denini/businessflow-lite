@@ -132,11 +132,17 @@ export async function getProducts(search?: string, status?: string) {
   });
 
   if (status === "low-stock") {
-    return products.filter((p) => p.stock <= p.lowStockThreshold);
+    return products.filter(
+      (p: { stock: number; lowStockThreshold: number }) =>
+        p.stock <= p.lowStockThreshold,
+    );
   }
 
   if (status === "in-stock") {
-    return products.filter((p) => p.stock > p.lowStockThreshold);
+    return products.filter(
+      (p: { stock: number; lowStockThreshold: number }) =>
+        p.stock > p.lowStockThreshold,
+    );
   }
 
   return products;
