@@ -29,7 +29,8 @@ export async function getDashboardMetrics() {
     ]);
 
   const lowStockProducts = allProducts.filter(
-    (p) => p.stock <= p.lowStockThreshold,
+    (p: { stock: number; lowStockThreshold: number }) =>
+      p.stock <= p.lowStockThreshold,
   );
 
   return {
